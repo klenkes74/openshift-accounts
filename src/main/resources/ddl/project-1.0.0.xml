@@ -1,0 +1,94 @@
+<!--
+  ~ Copyright (c) 2018 Kaiserpfalz EDV-Service, Roland T. Lichti
+  ~
+  ~ This file is part of openshift-PROJECTS.
+  ~
+  ~ openshift-PROJECTS is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ Foobar is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with Foobar.  If not, see <https://www.gnu.org/licenses/>.
+  -->
+
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="
+            http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd
+        ">
+
+    <changeSet id="projects-initial" author="klenkes74">
+        <comment>The initial data base tables.</comment>
+
+        <createTable tableName="PROJECTS">
+            <column name="ID_" type="VARCHAR(40)">
+                <constraints nullable="false"
+                             primaryKey="true" primaryKeyName="TENANTS_PK"/>
+            </column>
+
+            <column name="VERSION_" type="BIGINT" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="TENANT_" type="VARCHAR(40)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="_CREATED_" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="_MODIFIED_" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+
+
+            <column name="CLUSTER_" type="VARCHAR(40)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="NAME_" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+
+
+            <column name="OWNER_" type="VARCHAR(40)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+
+        <createIndex indexName="PROJECTS_TENANT_IDX" tableName="PROJECTS">
+            <column name="TENANT_"/>
+        </createIndex>
+
+        <createIndex indexName="PROJECTS_NAME_UK" unique="true" tableName="PROJECTS">
+            <column name="CLUSTER_"/>
+            <column name="NAME_"/>
+        </createIndex>
+
+
+        <loadData tableName="PROJECTS" file="../data/PROJECTS.csv" relativeToChangelogFile="true" encoding="UTF-8"
+                  quotchar="&quot;" separator=";"/>
+
+
+        <rollback>
+            <dropIndex indexName="PROJECTS_NAME_UK"
+                       tableName="PROJECTS"/>
+        </rollback>
+        <rollback>
+            <dropIndex indexName="PROJECTS_TENANT_IDX"
+                       tableName="PROJECTS"/>
+        </rollback>
+        <rollback>
+            <dropTable tableName="PROJECTS"/>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>
