@@ -16,7 +16,6 @@
 
 package de.kaiserpfalzedv.openshift.accounts.backend.model.base;
 
-import java.time.ZoneId;
 import java.util.UUID;
 
 /**
@@ -27,9 +26,6 @@ import java.util.UUID;
  */
 public interface Identifiable {
     public UUID DEFAULT_TENANT = UUID.fromString("0fde851e-0179-4c02-8c43-7f9f267c6ffa");
-
-    public UUID getTenant();
-    public void setTenant(final UUID tenant);
 
     public UUID getId();
 }

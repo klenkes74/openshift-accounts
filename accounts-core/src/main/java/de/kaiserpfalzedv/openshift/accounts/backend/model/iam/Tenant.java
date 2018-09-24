@@ -14,24 +14,17 @@
  *    limitations under the License.
  */
 
-package de.kaiserpfalzedv.openshift.accounts.backend.model.ocp;
+package de.kaiserpfalzedv.openshift.accounts.backend.model.iam;
 
-import java.util.Set;
+import java.util.UUID;
 
-import de.kaiserpfalzedv.openshift.accounts.backend.model.iam.Account;
-import de.kaiserpfalzedv.openshift.accounts.backend.model.iam.Group;
-import de.kaiserpfalzedv.openshift.accounts.backend.model.iam.Tenant;
+import de.kaiserpfalzedv.openshift.accounts.backend.model.base.BaseEntity;
+import de.kaiserpfalzedv.openshift.accounts.backend.model.base.Nameable;
 
 /**
  * @author rlichti {@literal <rlichti@kaiserpfalz-edv.de>}
  * @since 2018-09-21
  */
-public interface Project extends Tenant {
-    public Cluster getCluster();
-
-    public Account getOwner();
-
-    public Set<? extends Group> getViewers();
-    public Set<? extends Group> getEditors();
-    public Set<? extends Group> getAdmins();
+public interface Tenant extends BaseEntity, Nameable {
+    public UUID getTenant();
 }

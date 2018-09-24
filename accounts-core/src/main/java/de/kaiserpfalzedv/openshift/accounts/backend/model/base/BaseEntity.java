@@ -21,5 +21,5 @@ package de.kaiserpfalzedv.openshift.accounts.backend.model.base;
  * @version 1.0.0
  * @since 2018-09-24
  */
-public interface BaseEntity extends Identifiable, Changeable, Versionable {
+public interface BaseEntity extends Identifiable, Changeable, Versionable, Tenantable {
 }
