@@ -37,7 +37,9 @@ import javax.validation.constraints.NotNull;
 import de.kaiserpfalzedv.openshift.accounts.backend.jpa.base.JPABaseEntity;
 import de.kaiserpfalzedv.openshift.accounts.backend.jpa.iam.JPAAccount;
 import de.kaiserpfalzedv.openshift.accounts.backend.jpa.iam.JPAGroup;
+import de.kaiserpfalzedv.openshift.accounts.backend.model.iam.Account;
 import de.kaiserpfalzedv.openshift.accounts.backend.model.iam.Group;
+import de.kaiserpfalzedv.openshift.accounts.backend.model.ocp.Cluster;
 import de.kaiserpfalzedv.openshift.accounts.backend.model.ocp.Project;
 
 /**
@@ -48,13 +50,105 @@ import de.kaiserpfalzedv.openshift.accounts.backend.model.ocp.Project;
 @Table(
         name = "PROJECTS"
 )
-public class JPAProject extends JPABaseEntity {
-    @Column(name = "NAME_", length = 100, nullable = false)
+public class JPAProject extends JPABaseEntity implements Project {
     private String name;
+    private JPAAccount owner;
+    private JPACluster cluster;
+
+    private final HashSet<JPAGroup> viewers = new HashSet<>();
+    private final HashSet<JPAGroup> editors = new HashSet<>();
+    private final HashSet<JPAGroup> admins = new HashSet<>();
+
+
+    /**
+     * @deprecated Only for JPA ...
+     */
+    @SuppressWarnings("deprecation")
+    @Deprecated
+    protected JPAProject() {}
+
+    /**
+     * Created the new account.
+     * @param name The name of the project.
+     * @param owner The owner of the project.
+     */
+    @SuppressWarnings({"unused", "deprecation"})
+    public JPAProject(
+            @NotNull final String name,
+            @NotNull final Account owner,
+            @NotNull final Cluster cluster,
+            @NotNull final Collection<? extends Group> viewers,
+            @NotNull final Collection<? extends Group> editors,
+            @NotNull final Collection<? extends Group> admins
+    ) {
+        setName(name);
+        setOwner(owner);
+        setCluster(cluster);
+
+        setViewers(viewers);
+        setEditors(editors);
+        setAdmins(admins);
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    public JPAProject(
+            @NotNull final UUID id, @NotNull final Long version,
+            @NotNull final OffsetDateTime created, @NotNull final OffsetDateTime modified,
+            @NotNull final String name, @NotNull final Account owner, @NotNull final Cluster cluster,
+            @NotNull final Collection<? extends Group> viewers,
+            @NotNull final Collection<? extends Group> editors,
+            @NotNull final Collection<? extends Group> admins
+    ) {
+        super(id, version, created, modified);
+
+        setName(name);
+        setOwner(owner);
+        setCluster(cluster);
+
+        setViewers(viewers);
+        setEditors(editors);
+        setAdmins(admins);
+    }
+
+    public JPAProject(@NotNull final Project orig) {
+        this(orig.getId(), orig.getVersion(),
+                orig.getCreated(), orig.getModified(),
+                orig.getName(), orig.getOwner(), orig.getCluster(),
+                orig.getViewers(), orig.getEditors(), orig.getAdmins());
+    }
+
+
+    @Column(name = "NAME_", length = 100, nullable = false)
+    public String getName() {
+        return name;
+    }
+
+    public void setName(@NotNull final String name) {
+        this.name = name;
+    }
+
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "OWNER_", nullable = false)
-    private JPAAccount owner;
+    public JPAAccount getOwner() {
+        return owner;
+    }
+
+    public void setOwner(@NotNull final Account owner) {
+        this.owner = (owner instanceof JPAAccount ? (JPAAccount) owner : new JPAAccount(owner));
+    }
+
+
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(name = "CLUSTER_", nullable = false)
+    public JPACluster getCluster() {
+        return cluster;
+    }
+
+    public void setCluster(@NotNull final Cluster cluster) {
+        this.cluster = (cluster instanceof JPACluster ? (JPACluster) cluster : new JPACluster(cluster));
+    }
+
 
     @ManyToMany(
             fetch = FetchType.LAZY,
@@ -65,7 +159,47 @@ public class JPAProject extends JPABaseEntity {
             joinColumns = { @JoinColumn(name = "PROJECT_", nullable = false) },
             inverseJoinColumns = { @JoinColumn(name = "GROUP_", nullable = false) }
     )
-    private Set<JPAGroup> viewers = new HashSet<>();
+    public Set<? extends Group> getViewers() {
+        return viewers;
+    }
+
+    public void clearViewers() {
+        viewers.clear();
+    }
+
+    public void setViewers(@NotNull final Collection<? extends Group> groups) {
+        clearViewers();
+        addViewers(groups);
+    }
+
+    public void addViewers(@NotNull final Collection<? extends Group> groups) {
+        viewers.addAll(convertGroups(groups));
+    }
+
+    private static Collection<? extends JPAGroup> convertGroups(Collection<? extends Group> groups) {
+        HashSet<JPAGroup> result = new HashSet<>(groups.size());
+
+        groups.forEach(g -> result.add(convertGroup(g)));
+
+        return result;
+    }
+
+    private static JPAGroup convertGroup(Group group) {
+        return (group instanceof JPAGroup ? (JPAGroup) group : new JPAGroup(group));
+    }
+
+    public void removeViewers(@NotNull final Collection<? extends Group> groups) {
+        viewers.removeAll(convertGroups(groups));
+    }
+
+    public void addViewer(@NotNull final Group group) {
+        viewers.add(convertGroup(group));
+    }
+
+    public void removeViewer(@NotNull final Group group) {
+        viewers.remove(convertGroup(group));
+    }
+
 
     @ManyToMany(
             fetch = FetchType.LAZY,
@@ -76,7 +210,35 @@ public class JPAProject extends JPABaseEntity {
             joinColumns = { @JoinColumn(name = "PROJECT_", nullable = false) },
             inverseJoinColumns = { @JoinColumn(name = "GROUP_", nullable = false) }
     )
-    private Set<JPAGroup> editors = new HashSet<>();
+    public Set<? extends Group> getEditors() {
+        return editors;
+    }
+
+    public void clearEditors() {
+        editors.clear();
+    }
+
+    public void setEditors(@NotNull final Collection<? extends Group> groups) {
+        clearEditors();
+        addEditors(groups);
+    }
+
+    public void addEditors(@NotNull final Collection<? extends Group> groups) {
+        editors.addAll(convertGroups(groups));
+    }
+
+    public void removeEditors(@NotNull final Collection<? extends Group> groups) {
+        editors.removeAll(convertGroups(groups));
+    }
+
+    public void addEditor(@NotNull final Group group) {
+        editors.add(convertGroup(group));
+    }
+
+    public void removeEditor(@NotNull final Group group) {
+        editors.remove(convertGroup(group));
+    }
+
 
     @ManyToMany(
             fetch = FetchType.LAZY,
@@ -87,150 +249,7 @@ public class JPAProject extends JPABaseEntity {
             joinColumns = { @JoinColumn(name = "PROJECT_", nullable = false) },
             inverseJoinColumns = { @JoinColumn(name = "GROUP_", nullable = false) }
     )
-    private Set<JPAGroup> admins = new HashSet<>();
-
-
-    /**
-     * @deprecated Only for JPA ...
-     */
-    @Deprecated
-    public JPAProject() {}
-
-    /**
-     * Created the new account.
-     * @param name The name of the project.
-     * @param owner The owner of the project.
-     */
-    public JPAProject(
-            @NotNull final String name,
-            @NotNull final JPAAccount owner,
-            @NotNull final Collection<? extends JPAGroup> viewers,
-            @NotNull final Collection<? extends JPAGroup> editors,
-            @NotNull final Collection<? extends JPAGroup> admins
-    ) {
-        setName(name);
-        setOwner(owner);
-
-        setViewers(viewers);
-        setEditors(editors);
-        setAdmins(admins);
-    }
-
-    public JPAProject(
-            @NotNull final UUID id, @NotNull final Long version,
-            @NotNull final OffsetDateTime created, @NotNull final OffsetDateTime modified,
-            @NotNull final String name, @NotNull final JPAAccount owner,
-            @NotNull final Collection<? extends JPAGroup> viewers,
-            @NotNull final Collection<? extends JPAGroup> editors,
-            @NotNull final Collection<? extends JPAGroup> admins
-    ) {
-        super(id, version, created, modified);
-
-        setName(name);
-        setOwner(owner);
-
-        setViewers(viewers);
-        setEditors(editors);
-        setAdmins(admins);
-    }
-
-    public JPAProject(@NotNull final Project orig) {
-        this(orig.getId(), orig.getVersion(),
-                orig.getCreated(), orig.getModified(),
-                orig.getName(), new JPAAccount(orig.getOwner()),
-                convertGroups(orig.getViewers()), convertGroups(orig.getEditors()), convertGroups(orig.getAdmins()));
-    }
-
-    private static Collection<? extends JPAGroup> convertGroups(Collection<? extends Group> groups) {
-        HashSet<JPAGroup> result = new HashSet<>(groups.size());
-
-        groups.forEach(g -> result.add(new JPAGroup(g)));
-
-        return result;
-    }
-
-
-    public String getName() {
-        return name;
-    }
-
-    private void setName(@NotNull final String name) {
-        this.name = name;
-    }
-
-
-    public JPAAccount getOwner() {
-        return owner;
-    }
-
-    public void setOwner(@NotNull final JPAAccount owner) {
-        this.owner = owner;
-    }
-
-
-    public Set<JPAGroup> getViewers() {
-        return viewers;
-    }
-
-    public void clearViewers() {
-        viewers.clear();
-    }
-
-    public void setViewers(Collection<? extends JPAGroup> groups) {
-        clearViewers();
-        addViewers(groups);
-    }
-
-    public void addViewers(@NotNull final Collection<? extends JPAGroup> groups) {
-        viewers.addAll(groups);
-    }
-
-
-
-    public void removeViewers(@NotNull final Collection<? extends JPAGroup> groups) {
-        viewers.removeAll(groups);
-    }
-
-    public void addViewer(@NotNull final JPAGroup group) {
-        viewers.add(group);
-    }
-
-    public void removeViewer(@NotNull final JPAGroup group) {
-        viewers.remove(group);
-    }
-
-
-    public Set<JPAGroup> getEditors() {
-        return editors;
-    }
-
-    public void clearEditors() {
-        editors.clear();
-    }
-
-    public void setEditors(@NotNull final Collection<? extends JPAGroup> groups) {
-        clearEditors();
-        addEditors(groups);
-    }
-
-    public void addEditors(@NotNull final Collection<? extends JPAGroup> groups) {
-        editors.addAll(groups);
-    }
-
-    public void removeEditors(@NotNull final Collection<? extends JPAGroup> groups) {
-        editors.removeAll(groups);
-    }
-
-    public void addEditor(@NotNull final JPAGroup group) {
-        editors.add(group);
-    }
-
-    public void removeEditor(@NotNull final JPAGroup group) {
-        editors.remove(group);
-    }
-
-
-    public Set<JPAGroup> getAdmins() {
+    public Set<? extends Group> getAdmins() {
         return admins;
     }
 
@@ -238,25 +257,25 @@ public class JPAProject extends JPABaseEntity {
         admins.clear();
     }
 
-    public void setAdmins(@NotNull final Collection<? extends JPAGroup> groups) {
+    public void setAdmins(@NotNull final Collection<? extends Group> groups) {
         clearAdmins();
         addAdmins(groups);
     }
 
-    public void addAdmins(@NotNull final Collection<? extends JPAGroup> groups) {
-        admins.addAll(groups);
+    public void addAdmins(@NotNull final Collection<? extends Group> groups) {
+        admins.addAll(convertGroups(groups));
     }
 
-    public void removeAdmins(@NotNull final Collection<? extends JPAGroup> groups) {
-        admins.removeAll(groups);
+    public void removeAdmins(@NotNull final Collection<? extends Group> groups) {
+        admins.removeAll(convertGroups(groups));
     }
 
-    public void addAdmin(@NotNull final JPAGroup group) {
-        admins.add(group);
+    public void addAdmin(@NotNull final Group group) {
+        admins.add(convertGroup(group));
     }
 
-    public void removeAdmin(@NotNull final JPAGroup group) {
-        admins.remove(group);
+    public void removeAdmin(@NotNull final Group group) {
+        admins.remove(convertGroup(group));
     }
 
 
@@ -266,9 +285,14 @@ public class JPAProject extends JPABaseEntity {
                 JPAProject.class.getSimpleName() + "@" + System.identityHashCode(this) + "[",
                 "]")
                 .add("id='" + getId().toString() + "'")
-                .add("tenant='" + getTenant().toString() + "'")
-                .add("owner='" + owner + "'")
+                .add("version=" + getVersion())
+                .add("created=" + getCreated())
+                .add("modified=" + getModified())
+                .add("owner='" + owner.getShortName() + "'")
                 .add("name='" + name + "'")
+                .add("viewerCount=" + viewers.size())
+                .add("editorCount=" + editors.size())
+                .add("adminCount=" + admins.size())
                 .toString();
     }
 }

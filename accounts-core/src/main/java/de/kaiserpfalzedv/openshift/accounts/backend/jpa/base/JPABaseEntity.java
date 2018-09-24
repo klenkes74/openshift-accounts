@@ -16,20 +16,43 @@
 
 package de.kaiserpfalzedv.openshift.accounts.backend.jpa.base;
 
-import de.kaiserpfalzedv.openshift.accounts.backend.model.base.Changeable;
-import de.kaiserpfalzedv.openshift.accounts.backend.jpa.converters.OffsetDateTimeAttributeConverter;
-
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
+import java.util.Objects;
+import java.util.StringJoiner;
 import java.util.UUID;
+
+import javax.persistence.Column;
+import javax.persistence.Convert;
+import javax.persistence.Id;
+import javax.persistence.MappedSuperclass;
+import javax.persistence.PostLoad;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
+import javax.persistence.Transient;
+import javax.persistence.Version;
+import javax.validation.constraints.NotNull;
+
+import de.kaiserpfalzedv.openshift.accounts.backend.jpa.converters.OffsetDateTimeAttributeConverter;
+import de.kaiserpfalzedv.openshift.accounts.backend.jpa.converters.UuidAttributeConverter;
+import de.kaiserpfalzedv.openshift.accounts.backend.model.base.BaseEntity;
 
 /**
  * @author rlichti {@literal <rlichti@kaiserpfalz-edv.de>}
  * @since 2018-09-21
  */
 @MappedSuperclass
-public abstract class JPABaseEntity extends JPAIdentifiable implements Changeable {
+public abstract class JPABaseEntity implements BaseEntity {
+    @Id
+    @Column(name = "ID_", length = 40, nullable = false, unique = true, updatable = false)
+    private String storedId;
+
+    @Transient
+    private UUID id;
+
+    @Version
+    private Long version;
+
+
     @Column(name = "_CREATED_", nullable = false, updatable = false)
     @Convert(converter = OffsetDateTimeAttributeConverter.class)
     private OffsetDateTime created = OffsetDateTime.now(UTC);
@@ -39,36 +62,42 @@ public abstract class JPABaseEntity extends JPAIdentifiable implements Changeabl
     private OffsetDateTime modified = OffsetDateTime.now(UTC);
 
 
-    @SuppressWarnings("unused")
-    public JPABaseEntity() {
-    }
+    @SuppressWarnings({"unused", "DeprecatedIsStillUsed"})
+    @Deprecated
+    protected JPABaseEntity() {}
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "WeakerAccess"})
     public JPABaseEntity(@NotNull final UUID id, final Long version) {
-        super(id, version);
+        setId(id);
+        setVersion(version);
     }
 
-    @SuppressWarnings({"unused"})
-    public JPABaseEntity(@NotNull final UUID tenant, @NotNull final UUID id, final Long version) {
-        super(tenant, id, version);
-    }
-
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "WeakerAccess"})
     public JPABaseEntity(@NotNull final UUID id, final Long version,
                          @NotNull final OffsetDateTime created, @NotNull final OffsetDateTime modified) {
-        super(id, version);
+        setId(id);
+        setVersion(version);
 
         setCreated(created);
         setModified(modified);
     }
 
-    @SuppressWarnings({"unused"})
-    public JPABaseEntity(@NotNull final UUID tenant, @NotNull final UUID id, final Long version,
-                         @NotNull final OffsetDateTime created, @NotNull final OffsetDateTime modified) {
-        super(tenant, id, version);
 
-        setCreated(created);
-        setModified(modified);
+    @Override
+    public UUID getId() {
+        return id;
+    }
+
+    private void setId(@NotNull final UUID id) {
+        this.id = id;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    private void setVersion(final Long version) {
+        this.version = version;
     }
 
 
@@ -90,9 +119,48 @@ public abstract class JPABaseEntity extends JPAIdentifiable implements Changeabl
         this.modified = modified;
     }
 
-
+    
     @PreUpdate
     private void setModified() {
         modified = OffsetDateTime.now(UTC);
+    }
+
+
+    @PrePersist
+    private void convertIdToString() {
+        storedId = new UuidAttributeConverter().convertToDatabaseColumn(id);
+    }
+
+    @PostLoad
+    private void convertStringToId() {
+        id = new UuidAttributeConverter().convertToEntityAttribute(storedId);
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof JPABaseEntity)) return false;
+        JPABaseEntity that = (JPABaseEntity) o;
+        return Objects.equals(getId(), that.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId());
+    }
+
+
+    @Override
+    public String toString() {
+        return new StringJoiner(
+                ", ",
+                JPABaseEntity.class.getSimpleName() + "@" + System.identityHashCode(this)  + "[",
+                "]")
+                .add("id=" + id)
+                .add("version=" + version)
+                .add("created=" + created)
+                .add("modified=" + modified)
+                .toString();
     }
 }

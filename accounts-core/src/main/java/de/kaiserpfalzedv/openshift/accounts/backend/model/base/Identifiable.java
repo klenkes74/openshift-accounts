@@ -25,7 +25,5 @@ import java.util.UUID;
  * @since 2018-09-21
  */
 public interface Identifiable {
-    public UUID DEFAULT_TENANT = UUID.fromString("0fde851e-0179-4c02-8c43-7f9f267c6ffa");
-
     public UUID getId();
 }

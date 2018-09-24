@@ -42,14 +42,21 @@ import de.kaiserpfalzedv.openshift.accounts.backend.model.ocp.Project;
 public class ClusterImpl extends BaseEntityImpl implements Cluster {
     private String name;
 
-    private Set<ProjectImpl> projects = new HashSet<>();
+    private final HashSet<ProjectImpl> projects = new HashSet<>();
 
     /**
      * @deprecated Only for JPA ...
      */
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings({"deprecation", "DeprecatedIsStillUsed"})
     @Deprecated
     protected ClusterImpl() {}
+
+    @SuppressWarnings({"deprecation", "unused"})
+    public ClusterImpl(@NotNull final String name) {
+        super();
+
+        setName(name);
+    }
 
     @SuppressWarnings("WeakerAccess")
     public ClusterImpl(
@@ -58,31 +65,19 @@ public class ClusterImpl extends BaseEntityImpl implements Cluster {
             @NotNull final OffsetDateTime created,
             @NotNull final OffsetDateTime modified,
             @NotNull final String name,
-            @NotNull final Collection<? extends ProjectImpl> projects
+            @NotNull final Collection<? extends Project> projects
     ) {
-        super(id, version, Project.DEFAULT_TENANT, modified, created);
+        super(id, version, modified, created);
 
         setName(name);
         setProjects(projects);
     }
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "WeakerAccess"})
     public ClusterImpl(@NotNull final Cluster orig) {
         this(orig.getId(), orig.getVersion(),
              orig.getCreated(), orig.getModified(),
-             orig.getName(), convertProjects(orig.getProjects()));
-    }
-
-    private static Set<ProjectImpl> convertProjects(@NotNull final Collection<? extends Project> origs) {
-        HashSet<ProjectImpl> result = new HashSet<>(origs.size());
-
-        origs.forEach(p -> result.add(convertProject(p)));
-
-        return result;
-    }
-
-    private static ProjectImpl convertProject(@NotNull final Project orig) {
-        return (orig instanceof ProjectImpl ? (ProjectImpl) orig : new ProjectImpl(orig));
+             orig.getName(), orig.getProjects());
     }
 
 
@@ -95,14 +90,51 @@ public class ClusterImpl extends BaseEntityImpl implements Cluster {
     }
 
 
-    public Set<ProjectImpl> getProjects() {
+    public Set<? extends Project> getProjects() {
         return projects;
     }
 
-    public void setProjects(@NotNull final Collection<? extends ProjectImpl> projects) {
-        this.projects.clear();
+    @Override
+    public void setProjects(@NotNull Collection<? extends Project> projects) {
+        clearProjects();
+        addProjects(projects);
+    }
 
-        this.projects.addAll(projects);
+    @Override
+    public void clearProjects() {
+        this.projects.clear();
+    }
+
+    @Override
+    public void addProjects(@NotNull final Collection<? extends Project> projects) {
+        this.projects.addAll(convertProjects(projects));
+    }
+
+    private Set<ProjectImpl> convertProjects(@NotNull final Collection<? extends Project> origs) {
+        HashSet<ProjectImpl> result = new HashSet<>(origs.size());
+
+        origs.forEach(p -> result.add(convertProject(p)));
+
+        return result;
+    }
+
+    private ProjectImpl convertProject(@NotNull final Project orig) {
+        return (orig instanceof ProjectImpl ? (ProjectImpl) orig : new ProjectImpl(orig));
+    }
+
+    @Override
+    public void addProject(@NotNull final Project project) {
+        this.projects.add(convertProject(project));
+    }
+
+    @Override
+    public void removeProjects(@NotNull final Collection<? extends Project> projects) {
+        this.projects.removeAll(convertProjects(projects));
+    }
+
+    @Override
+    public void removeProject(@NotNull final Project project) {
+        this.projects.remove(convertProject(project));
     }
 
 
@@ -112,7 +144,11 @@ public class ClusterImpl extends BaseEntityImpl implements Cluster {
                 ClusterImpl.class.getSimpleName() + "@" + System.identityHashCode(this) + "[",
                 "]")
                 .add("id='" + getId().toString() + "'")
-                .add("tenant='" + getTenant().toString() + "'")
+                .add("version=" + getVersion())
+                .add("created=" + getCreated())
+                .add("modified=" + getModified())
+                .add("name='" + name + "'")
+                .add("projectCount=" + projects.size())
                 .toString();
     }
 }

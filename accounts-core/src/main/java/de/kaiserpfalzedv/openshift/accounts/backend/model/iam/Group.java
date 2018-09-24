@@ -16,7 +16,10 @@
 
 package de.kaiserpfalzedv.openshift.accounts.backend.model.iam;
 
+import java.util.Collection;
 import java.util.Set;
+
+import javax.validation.constraints.NotNull;
 
 import de.kaiserpfalzedv.openshift.accounts.backend.model.base.BaseEntity;
 import de.kaiserpfalzedv.openshift.accounts.backend.model.base.Nameable;
@@ -27,6 +30,13 @@ import de.kaiserpfalzedv.openshift.accounts.backend.model.base.Nameable;
  */
 public interface Group extends BaseEntity, Nameable {
     public Account getOwner();
+    public void setOwner(@NotNull final Account owner);
 
     public Set<? extends Account> getAccounts();
+    public void setAccounts(@NotNull final Collection<? extends Account> projects);
+    public void clearAccounts();
+    public void addAccounts(@NotNull final Collection<? extends Account> projects);
+    public void addAccount(@NotNull final Account project);
+    public void removeAccounts(@NotNull final Collection<? extends Account> projects);
+    public void removeAccount(@NotNull final Account project);
 }

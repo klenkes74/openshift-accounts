@@ -24,7 +24,6 @@ import javax.validation.constraints.NotNull;
 
 import de.kaiserpfalzedv.openshift.accounts.backend.dto.base.BaseEntityImpl;
 import de.kaiserpfalzedv.openshift.accounts.backend.model.iam.Person;
-import de.kaiserpfalzedv.openshift.accounts.backend.model.ocp.Project;
 
 /**
  * @author rlichti {@literal <rlichti@kaiserpfalz-edv.de>}
@@ -49,7 +48,7 @@ public class PersonImpl extends BaseEntityImpl implements Person {
             @NotNull final String name,
             @NotNull final String emailAddress
     ) {
-        super(id, version, Project.DEFAULT_TENANT, created, modified);
+        super(id, version, created, modified);
 
         setName(name);
         setEmailAddress(emailAddress);
@@ -90,7 +89,9 @@ public class PersonImpl extends BaseEntityImpl implements Person {
                 GroupImpl.class.getSimpleName() + "@" + System.identityHashCode(this) + "[",
                 "]")
                 .add("id='" + getId().toString() + "'")
-                .add("tenant='" + getTenant().toString() + "'")
+                .add("version=" + getVersion())
+                .add("created=" + getCreated())
+                .add("modified=" + getModified())
                 .add("name='" + name + "'")
                 .add("emailAddress='" + emailAddress + "'")
                 .toString();

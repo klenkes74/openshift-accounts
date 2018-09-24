@@ -67,38 +67,79 @@ public class ProjectImpl extends BaseEntityImpl implements Project {
             @NotNull final OffsetDateTime created,
             @NotNull final OffsetDateTime modified,
 
-            @NotNull final ClusterImpl cluster,
+            @NotNull final Cluster cluster,
             @NotNull final String name,
-            @NotNull final AccountImpl owner,
+            @NotNull final Account owner,
 
-            @NotNull final Collection<? extends GroupImpl> viewers,
-            @NotNull final Collection<? extends GroupImpl> editors,
-            @NotNull final Collection<? extends GroupImpl> admins
+            @NotNull final Collection<? extends Group> viewers,
+            @NotNull final Collection<? extends Group> editors,
+            @NotNull final Collection<? extends Group> admins
     ) {
-        super(id, version, Project.DEFAULT_TENANT, created, modified);
+        super(id, version, created, modified);
 
         setCluster(cluster);
         setName(name);
         setOwner(owner);
+
+        setViewers(viewers);
+        setEditors(editors);
+        setAdmins(admins);
     }
 
     @SuppressWarnings("WeakerAccess")
     public ProjectImpl(@NotNull final Project orig) {
-        this(orig.getId(), orig.getVersion(),
-             orig.getCreated(), orig.getModified(),
-             convertCluster(orig.getCluster()), orig.getName(), convertAccount(orig.getOwner()),
-             convertGroups(orig.getViewers()), convertGroups(orig.getEditors()), convertGroups(orig.getAdmins()));
+        this(orig.getId(), orig.getVersion(), orig.getCreated(), orig.getModified(),
+             orig.getCluster(), orig.getName(), orig.getOwner(),
+             orig.getViewers(), orig.getEditors(), orig.getAdmins());
     }
 
-    private static ClusterImpl convertCluster(@NotNull final Cluster orig) {
-        return (orig instanceof ClusterImpl ? (ClusterImpl) orig : new ClusterImpl(orig));
+
+    @Override
+    public Cluster getCluster() {
+        return cluster;
     }
 
-    private static AccountImpl convertAccount(@NotNull final Account orig) {
-        return (orig instanceof AccountImpl ? (AccountImpl) orig : new AccountImpl(orig));
+    public void setCluster(@NotNull final Cluster cluster) {
+        this.cluster = (cluster instanceof ClusterImpl ? (ClusterImpl) cluster : new ClusterImpl(cluster));
     }
 
-    private static Set<GroupImpl> convertGroups(@NotNull final Collection<? extends Group> origs) {
+    
+    public String getName() {
+        return name;
+    }
+
+    public void setName(@NotNull final String name) {
+        this.name = name;
+    }
+
+
+    public AccountImpl getOwner() {
+        return owner;
+    }
+
+    public void setOwner(@NotNull final Account owner) {
+        this.owner = (owner instanceof AccountImpl ? (AccountImpl) owner : new AccountImpl(owner));
+    }
+
+
+    public Set<? extends Group> getViewers() {
+        return viewers;
+    }
+
+    public void clearViewers() {
+        viewers.clear();
+    }
+
+    public void setViewers(@NotNull final Collection<? extends Group> groups) {
+        clearViewers();
+        addViewers(groups);
+    }
+
+    public void addViewers(@NotNull final Collection<? extends Group> groups) {
+        viewers.addAll(convertGroups(groups));
+    }
+
+    private Set<GroupImpl> convertGroups(@NotNull final Collection<? extends Group> origs) {
         HashSet<GroupImpl> result = new HashSet<>(origs.size());
 
         origs.forEach(g -> result.add(convertGroup(g)));
@@ -110,67 +151,20 @@ public class ProjectImpl extends BaseEntityImpl implements Project {
         return (orig instanceof GroupImpl ? (GroupImpl) orig : new GroupImpl(orig));
     }
 
-
-    @Override
-    public Cluster getCluster() {
-        return cluster;
+    public void addViewer(@NotNull final Group group) {
+        viewers.add(convertGroup(group));
     }
 
-    public void setCluster(@NotNull final ClusterImpl cluster) {
-        this.cluster = cluster;
+    public void removeViewers(@NotNull final Collection<? extends Group> groups) {
+        viewers.removeAll(convertGroups(groups));
     }
 
-    public String getName() {
-        return name;
-    }
-
-    private void setName(@NotNull final String name) {
-        this.name = name;
+    public void removeViewer(@NotNull final Group group) {
+        viewers.remove(convertGroup(group));
     }
 
 
-    public AccountImpl getOwner() {
-        return owner;
-    }
-
-    public void setOwner(@NotNull final AccountImpl owner) {
-        this.owner = owner;
-    }
-
-
-    public Set<GroupImpl> getViewers() {
-        return viewers;
-    }
-
-    public void clearViewers() {
-        viewers.clear();
-    }
-
-    public void setViewers(Collection<? extends GroupImpl> groups) {
-        clearViewers();
-        addViewers(groups);
-    }
-
-    public void addViewers(@NotNull final Collection<? extends GroupImpl> groups) {
-        viewers.addAll(groups);
-    }
-
-
-
-    public void removeViewers(@NotNull final Collection<? extends GroupImpl> groups) {
-        viewers.removeAll(groups);
-    }
-
-    public void addViewer(@NotNull final GroupImpl group) {
-        viewers.add(group);
-    }
-
-    public void removeViewer(@NotNull final GroupImpl group) {
-        viewers.remove(group);
-    }
-
-
-    public Set<GroupImpl> getEditors() {
+    public Set<? extends Group> getEditors() {
         return editors;
     }
 
@@ -178,29 +172,29 @@ public class ProjectImpl extends BaseEntityImpl implements Project {
         editors.clear();
     }
 
-    public void setEditors(@NotNull final Collection<? extends GroupImpl> groups) {
+    public void setEditors(@NotNull final Collection<? extends Group> groups) {
         clearEditors();
         addEditors(groups);
     }
 
-    public void addEditors(@NotNull final Collection<? extends GroupImpl> groups) {
-        editors.addAll(groups);
+    public void addEditors(@NotNull final Collection<? extends Group> groups) {
+        editors.addAll(convertGroups(groups));
     }
 
-    public void removeEditors(@NotNull final Collection<? extends GroupImpl> groups) {
-        editors.removeAll(groups);
+    public void addEditor(@NotNull final Group group) {
+        editors.add(convertGroup(group));
     }
 
-    public void addEditor(@NotNull final GroupImpl group) {
-        editors.add(group);
+    public void removeEditors(@NotNull final Collection<? extends Group> groups) {
+        editors.removeAll(convertGroups(groups));
     }
 
-    public void removeEditor(@NotNull final GroupImpl group) {
-        editors.remove(group);
+    public void removeEditor(@NotNull final Group group) {
+        editors.remove(convertGroup(group));
     }
 
 
-    public Set<GroupImpl> getAdmins() {
+    public Set<? extends Group> getAdmins() {
         return admins;
     }
 
@@ -208,25 +202,25 @@ public class ProjectImpl extends BaseEntityImpl implements Project {
         admins.clear();
     }
 
-    public void setAdmins(@NotNull final Collection<? extends GroupImpl> groups) {
+    public void setAdmins(@NotNull final Collection<? extends Group> groups) {
         clearAdmins();
         addAdmins(groups);
     }
 
-    public void addAdmins(@NotNull final Collection<? extends GroupImpl> groups) {
-        admins.addAll(groups);
+    public void addAdmins(@NotNull final Collection<? extends Group> groups) {
+        admins.addAll(convertGroups(groups));
     }
 
-    public void removeAdmins(@NotNull final Collection<? extends GroupImpl> groups) {
-        admins.removeAll(groups);
+    public void addAdmin(@NotNull final Group group) {
+        admins.add(convertGroup(group));
     }
 
-    public void addAdmin(@NotNull final GroupImpl group) {
-        admins.add(group);
+    public void removeAdmins(@NotNull final Collection<? extends Group> groups) {
+        admins.removeAll(convertGroups(groups));
     }
 
-    public void removeAdmin(@NotNull final GroupImpl group) {
-        admins.remove(group);
+    public void removeAdmin(@NotNull final Group group) {
+        admins.remove(convertGroup(group));
     }
 
 

@@ -38,7 +38,7 @@ public class GroupImpl extends BaseEntityImpl implements Group {
 
     private AccountImpl owner;
 
-    private Set<AccountImpl> accounts = new HashSet<>();
+    private final HashSet<AccountImpl> accounts = new HashSet<>();
 
 
     /**
@@ -57,12 +57,11 @@ public class GroupImpl extends BaseEntityImpl implements Group {
     public GroupImpl(
             @NotNull final UUID id,
             final Long version,
-            @NotNull final UUID tenant,
             @NotNull final OffsetDateTime created,
             @NotNull final OffsetDateTime modified,
             final String name,
-            final AccountImpl owner) {
-        super(id, version, tenant, created, modified);
+            final Account owner) {
+        super(id, version, created, modified);
 
         setName(name);
         setOwner(owner);
@@ -70,13 +69,9 @@ public class GroupImpl extends BaseEntityImpl implements Group {
 
     @SuppressWarnings("WeakerAccess")
     public GroupImpl(@NotNull final Group orig) {
-        this(orig.getId(), orig.getVersion(), orig.getTenant(),
+        this(orig.getId(), orig.getVersion(),
              orig.getCreated(), orig.getModified(),
-             orig.getName(), convertAccount(orig.getOwner()));
-    }
-
-    private static AccountImpl convertAccount(@NotNull final Account orig) {
-        return (orig instanceof AccountImpl ? (AccountImpl) orig : new AccountImpl(orig));
+             orig.getName(), orig.getOwner());
     }
 
 
@@ -93,8 +88,12 @@ public class GroupImpl extends BaseEntityImpl implements Group {
         return owner;
     }
 
-    public void setOwner(@NotNull final AccountImpl account) {
-        this.owner = account;
+    public void setOwner(@NotNull final Account account) {
+        this.owner = convertAccount(account);
+    }
+
+    private AccountImpl convertAccount(@NotNull final Account orig) {
+        return (orig instanceof AccountImpl ? (AccountImpl) orig : new AccountImpl(orig));
     }
 
 
@@ -106,26 +105,31 @@ public class GroupImpl extends BaseEntityImpl implements Group {
         accounts.clear();
     }
 
-    public void setAccounts(@NotNull final Collection<? extends AccountImpl> accounts) {
+    public void setAccounts(@NotNull final Collection<? extends Account> accounts) {
         clearAccounts();
-
-        this.accounts.addAll(accounts);
+        addAccounts(accounts);
     }
 
-    public void addAccounts(@NotNull final Collection<? extends AccountImpl> accounts) {
-        this.accounts.addAll(accounts);
+    public void addAccounts(@NotNull final Collection<? extends Account> accounts) {
+        this.accounts.addAll(convertAccounts(accounts));
     }
 
-    public void addAccount(@NotNull final AccountImpl account) {
-        this.accounts.add(account);
+    private Collection<AccountImpl> convertAccounts(@NotNull final Collection<? extends Account> accounts) {
+        HashSet<AccountImpl> result = new HashSet<>(accounts.size());
+        accounts.forEach(a -> result.add(convertAccount(a)));
+        return result;
+    }
+
+    public void addAccount(@NotNull final Account account) {
+        this.accounts.add(convertAccount(account));
     }
 
     public void removeAccounts(@NotNull final Collection<? extends Account> accounts) {
-        this.accounts.removeAll(accounts);
+        this.accounts.removeAll(convertAccounts(accounts));
     }
 
     public void removeAccount(@NotNull final Account account) {
-        this.accounts.remove(account);
+        this.accounts.remove(convertAccount(account));
     }
 
 
@@ -135,7 +139,6 @@ public class GroupImpl extends BaseEntityImpl implements Group {
                 GroupImpl.class.getSimpleName() + "@" + System.identityHashCode(this) + "[",
                 "]")
                 .add("id='" + getId().toString() + "'")
-                .add("tenant='" + getTenant().toString() + "'")
                 .add("owner='" + owner + "'")
                 .add("name='" + name + "'")
                 .add("accountCount=" + accounts.size())

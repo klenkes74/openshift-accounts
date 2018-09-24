@@ -16,7 +16,10 @@
 
 package de.kaiserpfalzedv.openshift.accounts.backend.model.ocp;
 
+import java.util.Collection;
 import java.util.Set;
+
+import javax.validation.constraints.NotNull;
 
 import de.kaiserpfalzedv.openshift.accounts.backend.model.base.BaseEntity;
 import de.kaiserpfalzedv.openshift.accounts.backend.model.base.Nameable;
@@ -27,4 +30,10 @@ import de.kaiserpfalzedv.openshift.accounts.backend.model.base.Nameable;
  */
 public interface Cluster extends BaseEntity, Nameable {
     public Set<? extends Project> getProjects();
+    public void setProjects(@NotNull final Collection<? extends Project> projects);
+    public void clearProjects();
+    public void addProjects(@NotNull final Collection<? extends Project> projects);
+    public void addProject(@NotNull final Project project);
+    public void removeProjects(@NotNull final Collection<? extends Project> projects);
+    public void removeProject(@NotNull final Project project);
 }

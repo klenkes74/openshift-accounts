@@ -67,11 +67,11 @@ public class AccountImpl extends BaseEntityImpl implements Account {
             @NotNull final OffsetDateTime created,
             @NotNull final OffsetDateTime modified,
             @NotNull final String name,
-            @NotNull final PersonImpl owner,
-            @NotNull final Collection<? extends ProjectImpl> projects,
-            @NotNull final Collection<? extends GroupImpl> groups
+            @NotNull final Person owner,
+            @NotNull final Collection<? extends Project> projects,
+            @NotNull final Collection<? extends Group> groups
     ) {
-        super(id, version, Project.DEFAULT_TENANT, created, modified);
+        super(id, version, created, modified);
 
         setName(name);
         setOwner(owner);
@@ -82,67 +82,34 @@ public class AccountImpl extends BaseEntityImpl implements Account {
 
     @SuppressWarnings("WeakerAccess")
     public AccountImpl(@NotNull final Account orig) {
-        this(orig.getId(), orig.getVersion(),
-             orig.getCreated(), orig.getModified(),
-             orig.getName(), convertPerson(orig.getOwner()),
-             convertProjects(orig.getProjects()), convertGroups(orig.getGroups()));
-    }
-
-    private static PersonImpl convertPerson(@NotNull final Person orig) {
-        return (orig instanceof PersonImpl ? (PersonImpl) orig : new PersonImpl(orig));
-    }
-
-    private static Set<ProjectImpl> convertProjects(@NotNull final Collection<? extends Project> origs) {
-        HashSet<ProjectImpl> result = new HashSet<>(origs.size());
-
-        origs.forEach(p -> result.add(convertProject(p)));
-
-        return result;
-    }
-
-    private static ProjectImpl convertProject(@NotNull final Project orig) {
-        return (orig instanceof ProjectImpl) ? (ProjectImpl) orig : new ProjectImpl(orig);
-    }
-
-    private static Set<GroupImpl> convertGroups(@NotNull final Collection<? extends Group> origs) {
-        HashSet<GroupImpl> result = new HashSet<>(origs.size());
-
-        origs.forEach((g -> result.add(convertGroup(g))));
-        
-        return result;
-    }
-
-    private static GroupImpl convertGroup(@NotNull final Group orig) {
-        return (orig instanceof GroupImpl) ? (GroupImpl) orig : new GroupImpl(orig);
+        this(orig.getId(), orig.getVersion(), orig.getCreated(), orig.getModified(),
+             orig.getName(), orig.getOwner(),
+             orig.getProjects(), orig.getGroups());
     }
 
 
+    @Override
     public String getName() {
         return name;
     }
 
-    private void setName(@NotNull final String name) {
+    @Override
+    public void setName(@NotNull final String name) {
         this.name = name;
     }
 
 
+    @Override
     public Person getOwner() {
         return owner;
     }
 
-    private void setOwner(@NotNull final PersonImpl person) {
-        this.owner = person;
+    public void setOwner(@NotNull final Person person) {
+        this.owner = convertPerson(person);
     }
 
-
-    public Set<? extends Group> getGroups() {
-        return groups;
-    }
-
-    private void setGroups(@NotNull final Collection<? extends GroupImpl> groups) {
-        this.groups.clear();
-
-        this.groups.addAll(groups);
+    private PersonImpl convertPerson(@NotNull final Person orig) {
+        return (orig instanceof PersonImpl ? (PersonImpl) orig : new PersonImpl(orig));
     }
 
 
@@ -150,11 +117,90 @@ public class AccountImpl extends BaseEntityImpl implements Account {
         return projects;
     }
 
-    private void setProjects(@NotNull final Collection<? extends ProjectImpl> projects) {
-        this.projects.clear();
-
-        this.projects.addAll(projects);
+    @Override
+    public void setProjects(@NotNull Collection<? extends Project> projects) {
+        clearProjects();
+        addProjects(projects);
     }
+
+    @Override
+    public void clearProjects() {
+        this.projects.clear();
+    }
+
+    @Override
+    public void addProjects(@NotNull final Collection<? extends Project> projects) {
+        this.projects.addAll(convertProjects(projects));
+    }
+
+    private Set<ProjectImpl> convertProjects(@NotNull final Collection<? extends Project> origs) {
+        HashSet<ProjectImpl> result = new HashSet<>(origs.size());
+
+        origs.forEach(p -> result.add(convertProject(p)));
+
+        return result;
+    }
+
+    private ProjectImpl convertProject(@NotNull final Project orig) {
+        return (orig instanceof ProjectImpl ? (ProjectImpl) orig : new ProjectImpl(orig));
+    }
+
+    @Override
+    public void addProject(@NotNull final Project project) {
+        this.projects.add(convertProject(project));
+    }
+
+    @Override
+    public void removeProjects(@NotNull final Collection<? extends Project> projects) {
+        this.projects.removeAll(convertProjects(projects));
+    }
+
+    @Override
+    public void removeProject(@NotNull final Project project) {
+        this.projects.remove(convertProject(project));
+    }
+
+    public Set<? extends Group> getGroups() {
+        return groups;
+    }
+
+    public void clearGroups() {
+        groups.clear();
+    }
+
+    public void setGroups(@NotNull final Collection<? extends Group> groups) {
+        clearGroups();
+        addGroups(groups);
+    }
+
+    public void addGroups(@NotNull final Collection<? extends Group> groups) {
+        this.groups.addAll(convertGroups(groups));
+    }
+
+    private Set<GroupImpl> convertGroups(@NotNull final Collection<? extends Group> origs) {
+        HashSet<GroupImpl> result = new HashSet<>(origs.size());
+
+        origs.forEach(g -> result.add(convertGroup(g)));
+
+        return result;
+    }
+
+    private static GroupImpl convertGroup(@NotNull final Group orig) {
+        return (orig instanceof GroupImpl ? (GroupImpl) orig : new GroupImpl(orig));
+    }
+
+    public void addGroup(@NotNull final Group group) {
+        this.groups.add(convertGroup(group));
+    }
+
+    public void removeGroups(@NotNull final Collection<? extends Group> groups) {
+        this.groups.removeAll(convertGroups(groups));
+    }
+
+    public void removeGroup(@NotNull final Group group) {
+        this.groups.remove(convertGroup(group));
+    }
+
 
 
     @Override
@@ -163,7 +209,7 @@ public class AccountImpl extends BaseEntityImpl implements Account {
                 AccountImpl.class.getSimpleName() + "@" + System.identityHashCode(this) + "[",
                 "]")
                 .add("id='" + getId().toString() + "'")
-                .add("tenant='" + getTenant().toString() + "'")
+                .add("version=" + getVersion())
                 .add("owner='" + owner + "'")
                 .add("projectsOwned=" + projects.size())
                 .add("groupsOwned=" + groups.size())

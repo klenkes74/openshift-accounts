@@ -16,6 +16,8 @@
 
 package de.kaiserpfalzedv.openshift.accounts.backend.model.base;
 
+import javax.validation.constraints.NotNull;
+
 /**
  * The basic nameable. Every identity carrying a human readable name should implement this interface.
  *
@@ -27,12 +29,16 @@ public interface Nameable {
      * @return The full name of the entity.
      */
     public String getName();
+    public void setName(@NotNull final String name);
 
     /**
      * @return A short representation of the name. Defaults to {@link #getName()}.
      */
     default String getShortName() {
         return getName();
+    }
+    default void setShortName(@NotNull final String name) {
+        setName(name);
     }
 
     /**
@@ -42,5 +48,8 @@ public interface Nameable {
      */
     default String getDisplayName() {
         return getName();
+    }
+    default void setDisplayName(@NotNull final String name) {
+        setName(name);
     }
 }

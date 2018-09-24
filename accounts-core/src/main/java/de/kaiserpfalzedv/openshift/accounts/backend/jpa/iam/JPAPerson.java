@@ -44,7 +44,7 @@ import de.kaiserpfalzedv.openshift.accounts.backend.model.iam.Person;
                 @UniqueConstraint(name = "PERSON_NAME_UK", columnNames = {"NAME_"})
         }
 )
-public class JPAPerson extends JPABaseEntity {
+public class JPAPerson extends JPABaseEntity implements Person {
     @Column(name = "NAME_", length = 100, nullable = false)
     private String name;
 
@@ -52,17 +52,17 @@ public class JPAPerson extends JPABaseEntity {
     private String email;
 
 
-    public JPAPerson() {}
+    @SuppressWarnings({"unused", "deprecation"})
+    protected JPAPerson() {}
 
-    public JPAPerson(@NotNull final String name) {
-        this.name = name;
-    }
-
+    @SuppressWarnings("unused")
     public JPAPerson(@NotNull final String name, @NotNull final String email) {
+        super();
         this.name = name;
         this.email = email;
     }
 
+    @SuppressWarnings("WeakerAccess")
     public JPAPerson(@NotNull final UUID id, @NotNull final Long version,
                      @NotNull final OffsetDateTime created, @NotNull final OffsetDateTime modified,
                      @NotNull final String name, @NotNull final String email) {
@@ -72,6 +72,7 @@ public class JPAPerson extends JPABaseEntity {
         setEmailAddress(email);
     }
 
+    @SuppressWarnings("WeakerAccess")
     public JPAPerson(@NotNull final Person orig) {
         this(orig.getId(), orig.getVersion(),
                 orig.getCreated(), orig.getModified(),
@@ -103,7 +104,9 @@ public class JPAPerson extends JPABaseEntity {
                 JPAPerson.class.getSimpleName() + "@" + System.identityHashCode(this) + "[",
                 "]")
                 .add("id='" + getId().toString() + "'")
-                .add("tenant='" + getTenant().toString() + "'")
+                .add("version=" + getVersion())
+                .add("created=" + getCreated())
+                .add("modified=" + getModified())
                 .add("name='" + name + "'")
                 .add("email='" + email + "'")
                 .toString();
