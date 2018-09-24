@@ -29,7 +29,7 @@
     <artifactId>accounts-core</artifactId>
     <packaging>jar</packaging>
 
-    <name>KP :: OpenShift :: Accounts :: Core</name>
+    <name>KP OCP Accounts :: Core</name>
 
     <dependencies>
         <dependency>

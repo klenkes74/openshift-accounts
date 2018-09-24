@@ -29,7 +29,7 @@
     <artifactId>accounts-ui</artifactId>
     <packaging>jar</packaging>
 
-    <name>KP :: OpenShift :: Accounts :: UI</name>
+    <name>KP OCP Accounts :: UI</name>
 
     <dependencies>
         <dependency>

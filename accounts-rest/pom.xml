@@ -29,7 +29,7 @@
     <artifactId>accounts-rest</artifactId>
     <packaging>jar</packaging>
 
-    <name>KP :: OpenShift :: Accounts :: REST</name>
+    <name>KP OCP Accounts :: REST</name>
 
     <dependencies>
         <dependency>
