@@ -14,19 +14,12 @@
  *    limitations under the License.
  */
 
-package de.kaiserpfalzedv.openshift.accounts.backend.model;
-
-import de.kaiserpfalzedv.openshift.accounts.backend.model.base.Changeable;
-import de.kaiserpfalzedv.openshift.accounts.backend.model.base.Identifiable;
-import de.kaiserpfalzedv.openshift.accounts.backend.model.base.Nameable;
-import de.kaiserpfalzedv.openshift.accounts.backend.model.base.Versionable;
-
-import java.util.Set;
+package de.kaiserpfalzedv.openshift.accounts.backend.model.base;
 
 /**
- * @author rlichti {@literal <rlichti@kaiserpfalz-edv.de>}
- * @since 2018-09-21
+ * @author klenkes {@literal <rlichti@kaiserpfalz-edv.de>}
+ * @version 1.0.0
+ * @since 2018-09-24
  */
-public interface Cluster extends Identifiable, Changeable, Versionable, Nameable {
-    public Set<? extends Project> getProjects();
+public interface BaseEntity extends Identifiable, Changeable, Versionable {
 }

@@ -14,24 +14,19 @@
  *    limitations under the License.
  */
 
-package de.kaiserpfalzedv.openshift.accounts.backend.model;
+package de.kaiserpfalzedv.openshift.accounts.backend.model.iam;
 
-import de.kaiserpfalzedv.openshift.accounts.backend.model.base.Changeable;
-import de.kaiserpfalzedv.openshift.accounts.backend.model.base.Identifiable;
+import java.util.Set;
+
+import de.kaiserpfalzedv.openshift.accounts.backend.model.base.BaseEntity;
 import de.kaiserpfalzedv.openshift.accounts.backend.model.base.Nameable;
-import de.kaiserpfalzedv.openshift.accounts.backend.model.base.Versionable;
 
 /**
  * @author rlichti {@literal <rlichti@kaiserpfalz-edv.de>}
- * @since 2018-09-21
+ * @since 2018-09-22
  */
-public interface Person extends Identifiable, Changeable, Versionable, Nameable {
-    public void setName(final String name);
+public interface Group extends BaseEntity, Nameable {
+    public Account getOwner();
 
-    public String getEmailAddress();
-    public void setEmailAddress(final String emailAddress);
-
-    default String getPreferredUserName() {
-        return getName();
-    }
+    public Set<? extends Account> getAccounts();
 }

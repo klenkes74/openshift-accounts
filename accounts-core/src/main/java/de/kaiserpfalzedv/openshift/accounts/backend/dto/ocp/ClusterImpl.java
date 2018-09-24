@@ -14,17 +14,22 @@
  *    limitations under the License.
  */
 
-package de.kaiserpfalzedv.openshift.accounts.backend.dto;
+package de.kaiserpfalzedv.openshift.accounts.backend.dto.ocp;
 
-import de.kaiserpfalzedv.openshift.accounts.backend.dto.base.BaseEntity;
-import de.kaiserpfalzedv.openshift.accounts.backend.model.Cluster;
-import de.kaiserpfalzedv.openshift.accounts.backend.model.Project;
+import java.time.OffsetDateTime;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.StringJoiner;
+import java.util.UUID;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-import java.time.OffsetDateTime;
-import java.util.*;
+
+import de.kaiserpfalzedv.openshift.accounts.backend.dto.base.BaseEntityImpl;
+import de.kaiserpfalzedv.openshift.accounts.backend.model.ocp.Cluster;
+import de.kaiserpfalzedv.openshift.accounts.backend.model.ocp.Project;
 
 /**
  * @author rlichti {@literal <rlichti@kaiserpfalz-edv.de>}
@@ -34,7 +39,7 @@ import java.util.*;
 @Table(
         name = "CLUSTERS"
 )
-public class ClusterImpl extends BaseEntity implements Cluster {
+public class ClusterImpl extends BaseEntityImpl implements Cluster {
     private String name;
 
     private Set<ProjectImpl> projects = new HashSet<>();
@@ -42,9 +47,11 @@ public class ClusterImpl extends BaseEntity implements Cluster {
     /**
      * @deprecated Only for JPA ...
      */
+    @SuppressWarnings("deprecation")
     @Deprecated
-    public ClusterImpl() {}
+    protected ClusterImpl() {}
 
+    @SuppressWarnings("WeakerAccess")
     public ClusterImpl(
             @NotNull final UUID id,
             final Long version,
@@ -57,6 +64,25 @@ public class ClusterImpl extends BaseEntity implements Cluster {
 
         setName(name);
         setProjects(projects);
+    }
+
+    @SuppressWarnings("unused")
+    public ClusterImpl(@NotNull final Cluster orig) {
+        this(orig.getId(), orig.getVersion(),
+             orig.getCreated(), orig.getModified(),
+             orig.getName(), convertProjects(orig.getProjects()));
+    }
+
+    private static Set<ProjectImpl> convertProjects(@NotNull final Collection<? extends Project> origs) {
+        HashSet<ProjectImpl> result = new HashSet<>(origs.size());
+
+        origs.forEach(p -> result.add(convertProject(p)));
+
+        return result;
+    }
+
+    private static ProjectImpl convertProject(@NotNull final Project orig) {
+        return (orig instanceof ProjectImpl ? (ProjectImpl) orig : new ProjectImpl(orig));
     }
 
 

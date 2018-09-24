@@ -14,25 +14,22 @@
  *    limitations under the License.
  */
 
-package de.kaiserpfalzedv.openshift.accounts.backend.dto;
+package de.kaiserpfalzedv.openshift.accounts.backend.model.iam;
 
-import de.kaiserpfalzedv.openshift.accounts.backend.model.AccountBuilder;
-import de.kaiserpfalzedv.openshift.accounts.backend.model.PersonBuilder;
-
-import java.util.HashSet;
 import java.util.Set;
+
+import de.kaiserpfalzedv.openshift.accounts.backend.model.base.BaseEntity;
+import de.kaiserpfalzedv.openshift.accounts.backend.model.base.Nameable;
+import de.kaiserpfalzedv.openshift.accounts.backend.model.ocp.Project;
 
 /**
  * @author rlichti {@literal <rlichti@kaiserpfalz-edv.de>}
- * @since 2018-09-22
+ * @since 2018-09-21
  */
-public class PersonImplBuilder extends PersonBuilder<PersonImpl> {
-    @Override
-    public PersonImpl build() {
-        return new PersonImpl(
-                id, version,
-                created, modified,
-                name, emailAddress
-        );
-    }
+public interface Account extends BaseEntity, Nameable {
+    public Person getOwner();
+
+    public Set<? extends Project> getProjects();
+
+    public Set<? extends Group> getGroups();
 }

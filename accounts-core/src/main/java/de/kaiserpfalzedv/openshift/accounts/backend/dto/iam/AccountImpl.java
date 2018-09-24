@@ -14,23 +14,29 @@
  *    limitations under the License.
  */
 
-package de.kaiserpfalzedv.openshift.accounts.backend.dto;
+package de.kaiserpfalzedv.openshift.accounts.backend.dto.iam;
 
-import de.kaiserpfalzedv.openshift.accounts.backend.dto.base.BaseEntity;
-import de.kaiserpfalzedv.openshift.accounts.backend.model.Account;
-import de.kaiserpfalzedv.openshift.accounts.backend.model.Group;
-import de.kaiserpfalzedv.openshift.accounts.backend.model.Person;
-import de.kaiserpfalzedv.openshift.accounts.backend.model.Project;
+import java.time.OffsetDateTime;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.StringJoiner;
+import java.util.UUID;
 
 import javax.validation.constraints.NotNull;
-import java.time.OffsetDateTime;
-import java.util.*;
+
+import de.kaiserpfalzedv.openshift.accounts.backend.dto.ocp.ProjectImpl;
+import de.kaiserpfalzedv.openshift.accounts.backend.dto.base.BaseEntityImpl;
+import de.kaiserpfalzedv.openshift.accounts.backend.model.iam.Account;
+import de.kaiserpfalzedv.openshift.accounts.backend.model.iam.Group;
+import de.kaiserpfalzedv.openshift.accounts.backend.model.iam.Person;
+import de.kaiserpfalzedv.openshift.accounts.backend.model.ocp.Project;
 
 /**
  * @author rlichti {@literal <rlichti@kaiserpfalz-edv.de>}
  * @since 2018-09-22
  */
-public class AccountImpl extends BaseEntity implements Account {
+public class AccountImpl extends BaseEntityImpl implements Account {
     private String name;
 
     private PersonImpl owner;
@@ -42,8 +48,9 @@ public class AccountImpl extends BaseEntity implements Account {
     /**
      * @deprecated Only for JPA ...
      */
+    @SuppressWarnings("deprecation")
     @Deprecated
-    public AccountImpl() {}
+    protected AccountImpl() {}
 
 
     /**
@@ -53,7 +60,7 @@ public class AccountImpl extends BaseEntity implements Account {
      * @param name The name of this account.
      * @param owner The owner of the account.
      */
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "WeakerAccess"})
     public AccountImpl(
             @NotNull final UUID id,
             final Long version,
@@ -71,6 +78,42 @@ public class AccountImpl extends BaseEntity implements Account {
 
         setProjects(projects);
         setGroups(groups);
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    public AccountImpl(@NotNull final Account orig) {
+        this(orig.getId(), orig.getVersion(),
+             orig.getCreated(), orig.getModified(),
+             orig.getName(), convertPerson(orig.getOwner()),
+             convertProjects(orig.getProjects()), convertGroups(orig.getGroups()));
+    }
+
+    private static PersonImpl convertPerson(@NotNull final Person orig) {
+        return (orig instanceof PersonImpl ? (PersonImpl) orig : new PersonImpl(orig));
+    }
+
+    private static Set<ProjectImpl> convertProjects(@NotNull final Collection<? extends Project> origs) {
+        HashSet<ProjectImpl> result = new HashSet<>(origs.size());
+
+        origs.forEach(p -> result.add(convertProject(p)));
+
+        return result;
+    }
+
+    private static ProjectImpl convertProject(@NotNull final Project orig) {
+        return (orig instanceof ProjectImpl) ? (ProjectImpl) orig : new ProjectImpl(orig);
+    }
+
+    private static Set<GroupImpl> convertGroups(@NotNull final Collection<? extends Group> origs) {
+        HashSet<GroupImpl> result = new HashSet<>(origs.size());
+
+        origs.forEach((g -> result.add(convertGroup(g))));
+        
+        return result;
+    }
+
+    private static GroupImpl convertGroup(@NotNull final Group orig) {
+        return (orig instanceof GroupImpl) ? (GroupImpl) orig : new GroupImpl(orig);
     }
 
 

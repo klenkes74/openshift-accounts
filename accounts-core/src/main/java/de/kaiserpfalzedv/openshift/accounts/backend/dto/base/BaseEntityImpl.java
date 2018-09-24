@@ -21,27 +21,26 @@ import java.util.UUID;
 
 import javax.validation.constraints.NotNull;
 
-import de.kaiserpfalzedv.openshift.accounts.backend.model.base.Changeable;
-import de.kaiserpfalzedv.openshift.accounts.backend.model.base.Versionable;
+import de.kaiserpfalzedv.openshift.accounts.backend.model.base.BaseEntity;
 
 /**
  * @author rlichti {@literal <rlichti@kaiserpfalz-edv.de>}
  * @since 2018-09-22
  */
-public abstract class BaseEntity extends Identifiable implements de.kaiserpfalzedv.openshift.accounts.backend.model.base.Identifiable, Versionable, Changeable {
+public abstract class BaseEntityImpl extends IdentifiableImpl implements BaseEntity {
 
     private OffsetDateTime created;
     private OffsetDateTime modified;
 
 
     @Deprecated
-    public BaseEntity() {}
+    public BaseEntityImpl() {}
 
-    public BaseEntity(@NotNull final UUID id) {
+    public BaseEntityImpl(@NotNull final UUID id) {
         super(id);
     }
 
-    public BaseEntity(
+    public BaseEntityImpl(
             @NotNull final UUID id,
             final Long version,
             @NotNull final UUID tenant
@@ -49,7 +48,7 @@ public abstract class BaseEntity extends Identifiable implements de.kaiserpfalze
         super(id, version, tenant);
     }
 
-    public BaseEntity(
+    public BaseEntityImpl(
             @NotNull final UUID id,
             final Long version,
             @NotNull final UUID tenant,

@@ -14,23 +14,17 @@
  *    limitations under the License.
  */
 
-package de.kaiserpfalzedv.openshift.accounts.backend.model;
-
-import de.kaiserpfalzedv.openshift.accounts.backend.model.base.Changeable;
-import de.kaiserpfalzedv.openshift.accounts.backend.model.base.Identifiable;
-import de.kaiserpfalzedv.openshift.accounts.backend.model.base.Nameable;
-import de.kaiserpfalzedv.openshift.accounts.backend.model.base.Versionable;
+package de.kaiserpfalzedv.openshift.accounts.backend.model.ocp;
 
 import java.util.Set;
+
+import de.kaiserpfalzedv.openshift.accounts.backend.model.base.BaseEntity;
+import de.kaiserpfalzedv.openshift.accounts.backend.model.base.Nameable;
 
 /**
  * @author rlichti {@literal <rlichti@kaiserpfalz-edv.de>}
  * @since 2018-09-21
  */
-public interface Account extends Identifiable, Changeable, Versionable, Nameable {
-    public Person getOwner();
-
+public interface Cluster extends BaseEntity, Nameable {
     public Set<? extends Project> getProjects();
-
-    public Set<? extends Group> getGroups();
 }

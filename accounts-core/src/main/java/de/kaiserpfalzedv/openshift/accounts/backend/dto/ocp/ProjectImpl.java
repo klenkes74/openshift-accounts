@@ -14,22 +14,30 @@
  *    limitations under the License.
  */
 
-package de.kaiserpfalzedv.openshift.accounts.backend.dto;
+package de.kaiserpfalzedv.openshift.accounts.backend.dto.ocp;
 
-import de.kaiserpfalzedv.openshift.accounts.backend.dto.base.BaseEntity;
-import de.kaiserpfalzedv.openshift.accounts.backend.jpa.base.JPABaseEntity;
-import de.kaiserpfalzedv.openshift.accounts.backend.model.Cluster;
-import de.kaiserpfalzedv.openshift.accounts.backend.model.Project;
+import java.time.OffsetDateTime;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.StringJoiner;
+import java.util.UUID;
 
 import javax.validation.constraints.NotNull;
-import java.time.OffsetDateTime;
-import java.util.*;
+
+import de.kaiserpfalzedv.openshift.accounts.backend.dto.base.BaseEntityImpl;
+import de.kaiserpfalzedv.openshift.accounts.backend.dto.iam.AccountImpl;
+import de.kaiserpfalzedv.openshift.accounts.backend.dto.iam.GroupImpl;
+import de.kaiserpfalzedv.openshift.accounts.backend.model.iam.Account;
+import de.kaiserpfalzedv.openshift.accounts.backend.model.ocp.Cluster;
+import de.kaiserpfalzedv.openshift.accounts.backend.model.iam.Group;
+import de.kaiserpfalzedv.openshift.accounts.backend.model.ocp.Project;
 
 /**
  * @author rlichti {@literal <rlichti@kaiserpfalz-edv.de>}
  * @since 2018-09-22
  */
-public class ProjectImpl extends BaseEntity implements de.kaiserpfalzedv.openshift.accounts.backend.model.Project {
+public class ProjectImpl extends BaseEntityImpl implements Project {
     private Cluster cluster;
     private String name;
 
@@ -43,14 +51,16 @@ public class ProjectImpl extends BaseEntity implements de.kaiserpfalzedv.openshi
     /**
      * @deprecated Only for JPA ...
      */
+    @SuppressWarnings("deprecation")
     @Deprecated
-    public ProjectImpl() {}
+    protected ProjectImpl() {}
 
     /**
      * Created the new account.
      * @param name The name of the project.
      * @param owner The owner of the project.
      */
+    @SuppressWarnings("WeakerAccess")
     public ProjectImpl(
             @NotNull final UUID id,
             final Long version,
@@ -59,13 +69,45 @@ public class ProjectImpl extends BaseEntity implements de.kaiserpfalzedv.openshi
 
             @NotNull final ClusterImpl cluster,
             @NotNull final String name,
-            @NotNull final AccountImpl owner
+            @NotNull final AccountImpl owner,
+
+            @NotNull final Collection<? extends GroupImpl> viewers,
+            @NotNull final Collection<? extends GroupImpl> editors,
+            @NotNull final Collection<? extends GroupImpl> admins
     ) {
         super(id, version, Project.DEFAULT_TENANT, created, modified);
 
         setCluster(cluster);
         setName(name);
         setOwner(owner);
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    public ProjectImpl(@NotNull final Project orig) {
+        this(orig.getId(), orig.getVersion(),
+             orig.getCreated(), orig.getModified(),
+             convertCluster(orig.getCluster()), orig.getName(), convertAccount(orig.getOwner()),
+             convertGroups(orig.getViewers()), convertGroups(orig.getEditors()), convertGroups(orig.getAdmins()));
+    }
+
+    private static ClusterImpl convertCluster(@NotNull final Cluster orig) {
+        return (orig instanceof ClusterImpl ? (ClusterImpl) orig : new ClusterImpl(orig));
+    }
+
+    private static AccountImpl convertAccount(@NotNull final Account orig) {
+        return (orig instanceof AccountImpl ? (AccountImpl) orig : new AccountImpl(orig));
+    }
+
+    private static Set<GroupImpl> convertGroups(@NotNull final Collection<? extends Group> origs) {
+        HashSet<GroupImpl> result = new HashSet<>(origs.size());
+
+        origs.forEach(g -> result.add(convertGroup(g)));
+
+        return result;
+    }
+
+    private static GroupImpl convertGroup(@NotNull final Group orig) {
+        return (orig instanceof GroupImpl ? (GroupImpl) orig : new GroupImpl(orig));
     }
 
 

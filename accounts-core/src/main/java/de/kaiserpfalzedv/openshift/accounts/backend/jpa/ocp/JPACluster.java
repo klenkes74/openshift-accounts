@@ -14,16 +14,28 @@
  *    limitations under the License.
  */
 
-package de.kaiserpfalzedv.openshift.accounts.backend.jpa;
+package de.kaiserpfalzedv.openshift.accounts.backend.jpa.ocp;
 
-import de.kaiserpfalzedv.openshift.accounts.backend.model.Cluster;
-import de.kaiserpfalzedv.openshift.accounts.backend.model.Project;
-import de.kaiserpfalzedv.openshift.accounts.backend.jpa.base.JPABaseEntity;
-
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.StringJoiner;
+import java.util.UUID;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+
+import de.kaiserpfalzedv.openshift.accounts.backend.jpa.base.JPABaseEntity;
+import de.kaiserpfalzedv.openshift.accounts.backend.model.ocp.Cluster;
+import de.kaiserpfalzedv.openshift.accounts.backend.model.ocp.Project;
 
 /**
  * @author rlichti {@literal <rlichti@kaiserpfalz-edv.de>}

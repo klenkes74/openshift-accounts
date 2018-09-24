@@ -14,10 +14,10 @@
  *    limitations under the License.
  */
 
-package de.kaiserpfalzedv.openshift.accounts.backend.jpa;
+package de.kaiserpfalzedv.openshift.accounts.backend.jpa.iam;
 
-import de.kaiserpfalzedv.openshift.accounts.backend.model.Account;
-import de.kaiserpfalzedv.openshift.accounts.backend.model.Group;
+import de.kaiserpfalzedv.openshift.accounts.backend.model.iam.Account;
+import de.kaiserpfalzedv.openshift.accounts.backend.model.iam.Group;
 import de.kaiserpfalzedv.openshift.accounts.backend.jpa.base.JPABaseEntity;
 
 import javax.persistence.*;

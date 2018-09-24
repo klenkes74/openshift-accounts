@@ -14,13 +14,12 @@
  *    limitations under the License.
  */
 
-package de.kaiserpfalzedv.openshift.accounts.backend.jpa;
+package de.kaiserpfalzedv.openshift.accounts.backend.jpa.iam;
 
-import de.kaiserpfalzedv.openshift.accounts.backend.model.Account;
-import de.kaiserpfalzedv.openshift.accounts.backend.model.Group;
-import de.kaiserpfalzedv.openshift.accounts.backend.model.Person;
+import de.kaiserpfalzedv.openshift.accounts.backend.jpa.ocp.JPAProject;
+import de.kaiserpfalzedv.openshift.accounts.backend.model.iam.Account;
 import de.kaiserpfalzedv.openshift.accounts.backend.jpa.base.JPABaseEntity;
-import de.kaiserpfalzedv.openshift.accounts.backend.model.Project;
+import de.kaiserpfalzedv.openshift.accounts.backend.model.ocp.Project;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;

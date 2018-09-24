@@ -14,29 +14,33 @@
  *    limitations under the License.
  */
 
-package de.kaiserpfalzedv.openshift.accounts.backend.dto;
+package de.kaiserpfalzedv.openshift.accounts.backend.dto.iam;
 
-import de.kaiserpfalzedv.openshift.accounts.backend.dto.base.BaseEntity;
-import de.kaiserpfalzedv.openshift.accounts.backend.model.Project;
-
-import javax.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
 import java.util.StringJoiner;
 import java.util.UUID;
+
+import javax.validation.constraints.NotNull;
+
+import de.kaiserpfalzedv.openshift.accounts.backend.dto.base.BaseEntityImpl;
+import de.kaiserpfalzedv.openshift.accounts.backend.model.iam.Person;
+import de.kaiserpfalzedv.openshift.accounts.backend.model.ocp.Project;
 
 /**
  * @author rlichti {@literal <rlichti@kaiserpfalz-edv.de>}
  * @since 2018-09-22
  */
-public class PersonImpl extends BaseEntity implements de.kaiserpfalzedv.openshift.accounts.backend.model.Person {
+public class PersonImpl extends BaseEntityImpl implements Person {
 
     private String name;
     private String emailAddress;
 
 
+    @SuppressWarnings("deprecation")
     @Deprecated
-    public PersonImpl() {}
+    protected PersonImpl() {}
 
+    @SuppressWarnings("WeakerAccess")
     public PersonImpl(
             @NotNull final UUID id,
             final Long version,
@@ -49,6 +53,13 @@ public class PersonImpl extends BaseEntity implements de.kaiserpfalzedv.openshif
 
         setName(name);
         setEmailAddress(emailAddress);
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    public PersonImpl(@NotNull final Person orig) {
+        this(orig.getId(), orig.getVersion(),
+             orig.getCreated(), orig.getModified(),
+             orig.getName(), orig.getEmailAddress());
     }
 
 

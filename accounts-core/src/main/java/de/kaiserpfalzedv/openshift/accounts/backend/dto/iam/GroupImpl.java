@@ -14,21 +14,26 @@
  *    limitations under the License.
  */
 
-package de.kaiserpfalzedv.openshift.accounts.backend.dto;
+package de.kaiserpfalzedv.openshift.accounts.backend.dto.iam;
 
-import de.kaiserpfalzedv.openshift.accounts.backend.dto.base.BaseEntity;
-import de.kaiserpfalzedv.openshift.accounts.backend.model.Account;
-import de.kaiserpfalzedv.openshift.accounts.backend.model.Group;
+import java.time.OffsetDateTime;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.StringJoiner;
+import java.util.UUID;
 
 import javax.validation.constraints.NotNull;
-import java.time.OffsetDateTime;
-import java.util.*;
+
+import de.kaiserpfalzedv.openshift.accounts.backend.dto.base.BaseEntityImpl;
+import de.kaiserpfalzedv.openshift.accounts.backend.model.iam.Account;
+import de.kaiserpfalzedv.openshift.accounts.backend.model.iam.Group;
 
 /**
  * @author rlichti {@literal <rlichti@kaiserpfalz-edv.de>}
  * @since 2018-09-22
  */
-public class GroupImpl extends BaseEntity implements Group {
+public class GroupImpl extends BaseEntityImpl implements Group {
     private String name;
 
     private AccountImpl owner;
@@ -39,15 +44,16 @@ public class GroupImpl extends BaseEntity implements Group {
     /**
      * @deprecated Only for JPA ...
      */
+    @SuppressWarnings("deprecation")
     @Deprecated
-    public GroupImpl() {}
+    protected GroupImpl() {}
 
     /**
      * Created the new account.
      * @param name The name of the project.
      * @param owner The owner of the project.
      */
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "WeakerAccess"})
     public GroupImpl(
             @NotNull final UUID id,
             final Long version,
@@ -60,6 +66,17 @@ public class GroupImpl extends BaseEntity implements Group {
 
         setName(name);
         setOwner(owner);
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    public GroupImpl(@NotNull final Group orig) {
+        this(orig.getId(), orig.getVersion(), orig.getTenant(),
+             orig.getCreated(), orig.getModified(),
+             orig.getName(), convertAccount(orig.getOwner()));
+    }
+
+    private static AccountImpl convertAccount(@NotNull final Account orig) {
+        return (orig instanceof AccountImpl ? (AccountImpl) orig : new AccountImpl(orig));
     }
 
 

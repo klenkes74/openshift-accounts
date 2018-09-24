@@ -16,19 +16,21 @@
 
 package de.kaiserpfalzedv.openshift.accounts.backend.dto.base;
 
-import de.kaiserpfalzedv.openshift.accounts.backend.model.Project;
-import de.kaiserpfalzedv.openshift.accounts.backend.model.base.Versionable;
-
-import javax.validation.constraints.NotNull;
 import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.UUID;
+
+import javax.validation.constraints.NotNull;
+
+import de.kaiserpfalzedv.openshift.accounts.backend.model.ocp.Project;
+import de.kaiserpfalzedv.openshift.accounts.backend.model.base.Identifiable;
+import de.kaiserpfalzedv.openshift.accounts.backend.model.base.Versionable;
 
 /**
  * @author rlichti {@literal <rlichti@kaiserpfalz-edv.de>}
  * @since 2018-09-22
  */
-public abstract class Identifiable implements de.kaiserpfalzedv.openshift.accounts.backend.model.base.Identifiable, Versionable {
+public abstract class IdentifiableImpl implements Identifiable, Versionable {
     private UUID id = UUID.randomUUID();
     private Long version;
     private UUID tenant = Project.DEFAULT_TENANT;
@@ -37,13 +39,13 @@ public abstract class Identifiable implements de.kaiserpfalzedv.openshift.accoun
      * @deprecated Only for JAX-RS, JAX-B, JPA, ...
      */
     @Deprecated
-    public Identifiable() {}
+    public IdentifiableImpl() {}
 
-    public Identifiable(@NotNull final UUID id) {
+    public IdentifiableImpl(@NotNull final UUID id) {
         this.id = id;
     }
 
-    public Identifiable(
+    public IdentifiableImpl(
             @NotNull final UUID id,
             final Long version,
             @NotNull final UUID tenant
@@ -84,8 +86,8 @@ public abstract class Identifiable implements de.kaiserpfalzedv.openshift.accoun
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Identifiable)) return false;
-        Identifiable that = (Identifiable) o;
+        if (!(o instanceof IdentifiableImpl)) return false;
+        IdentifiableImpl that = (IdentifiableImpl) o;
         return Objects.equals(getId(), that.getId());
     }
 
@@ -99,7 +101,7 @@ public abstract class Identifiable implements de.kaiserpfalzedv.openshift.accoun
     public String toString() {
         return new StringJoiner(
                 ", ",
-                Identifiable.class.getSimpleName() + "@" + System.identityHashCode(this) + "[",
+                IdentifiableImpl.class.getSimpleName() + "@" + System.identityHashCode(this) + "[",
                 "]")
                 .add("id=" + id)
                 .add("version=" + version)
