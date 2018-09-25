@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package de.kaiserpfalzedv.openshift.accounts.backend.model;
+package de.kaiserpfalzedv.openshift.accounts.backend.model.ocp;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -24,9 +24,11 @@ import javax.persistence.EntityManager;
 import javax.validation.constraints.NotNull;
 
 import de.kaiserpfalzedv.openshift.accounts.backend.jpa.ocp.JPACluster;
-import de.kaiserpfalzedv.openshift.accounts.backend.model.ocp.Cluster;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  * @author klenkes {@literal <rlichti@kaiserpfalz-edv.de>}
@@ -60,5 +62,20 @@ public class ClusterServiceImpl implements ClusterService {
 
         LOG.info("Saved: {}", result);
         return result;
+    }
+
+    @Override
+    public Optional<Cluster> getCluster(@NotNull UUID id) {
+        return Optional.ofNullable(em.find(JPACluster.class, id));
+    }
+
+    @Override
+    public Optional<Cluster> getCluster(@NotNull String name) {
+        return Optional.ofNullable(
+                em
+                        .createQuery("select c from Clusters where name = :name", JPACluster.class)
+                        .setParameter("name", name)
+                        .getSingleResult()
+        );
     }
 }

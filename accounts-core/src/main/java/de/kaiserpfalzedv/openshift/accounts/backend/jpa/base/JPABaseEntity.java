@@ -64,7 +64,9 @@ public abstract class JPABaseEntity implements BaseEntity {
 
     @SuppressWarnings({"unused", "DeprecatedIsStillUsed"})
     @Deprecated
-    protected JPABaseEntity() {}
+    protected JPABaseEntity() {
+        setId(UUID.randomUUID());
+    }
 
     @SuppressWarnings({"unused", "WeakerAccess"})
     public JPABaseEntity(@NotNull final UUID id, final Long version) {
@@ -88,7 +90,7 @@ public abstract class JPABaseEntity implements BaseEntity {
         return id;
     }
 
-    private void setId(@NotNull final UUID id) {
+    public void setId(@NotNull final UUID id) {
         this.id = id;
     }
 
@@ -96,7 +98,7 @@ public abstract class JPABaseEntity implements BaseEntity {
         return version;
     }
 
-    private void setVersion(final Long version) {
+    public void setVersion(final Long version) {
         this.version = version;
     }
 

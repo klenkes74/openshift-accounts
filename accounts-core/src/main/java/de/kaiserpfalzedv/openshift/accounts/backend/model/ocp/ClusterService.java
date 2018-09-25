@@ -14,11 +14,16 @@
  *    limitations under the License.
  */
 
-package de.kaiserpfalzedv.openshift.accounts.backend.model;
+package de.kaiserpfalzedv.openshift.accounts.backend.model.ocp;
 
+import javax.swing.text.html.Option;
 import javax.validation.constraints.NotNull;
 
 import de.kaiserpfalzedv.openshift.accounts.backend.model.ocp.Cluster;
+import de.kaiserpfalzedv.openshift.accounts.backend.model.ocp.ClusterWithNameAlreadyExistsException;
+
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  * @author klenkes {@literal <rlichti@kaiserpfalz-edv.de>}
@@ -26,5 +31,8 @@ import de.kaiserpfalzedv.openshift.accounts.backend.model.ocp.Cluster;
  * @since 2018-09-25
  */
 public interface ClusterService extends AutoCloseable {
-    Cluster addCluster(@NotNull String name);
+    Cluster addCluster(@NotNull String name) throws ClusterWithNameAlreadyExistsException;
+
+    Optional<Cluster> getCluster(@NotNull UUID id);
+    Optional<Cluster> getCluster(@NotNull String name);
 }
