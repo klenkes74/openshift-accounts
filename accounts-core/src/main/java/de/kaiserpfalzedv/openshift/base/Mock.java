@@ -14,17 +14,22 @@
  *    limitations under the License.
  */
 
-package de.kaiserpfalzedv.openshift.accounts.backend.model;
+package de.kaiserpfalzedv.openshift.base;
 
-import javax.validation.constraints.NotNull;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import de.kaiserpfalzedv.openshift.accounts.backend.model.ocp.Cluster;
+import javax.inject.Qualifier;
 
 /**
  * @author klenkes {@literal <rlichti@kaiserpfalz-edv.de>}
  * @version 1.0.0
  * @since 2018-09-25
  */
-public interface ClusterService extends AutoCloseable {
-    Cluster addCluster(@NotNull String name);
+@Qualifier
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE, ElementType.FIELD})
+public @interface Mock {
 }
