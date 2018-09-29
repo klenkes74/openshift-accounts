@@ -33,6 +33,74 @@
         <module>accounts-ui</module>
     </modules>
 
+
+    <distributionManagement>
+        <repository>
+            <id>internal</id>
+            <url>https://devzone.kaiserpfalz-edv.de/ci/plugin/repository/everything/</url>
+        </repository>
+        <snapshotRepository>
+            <id>snapshot</id>
+            <url>https://devzone.kaiserpfalz-edv.de/ci/plugin/repository/everything/</url>
+        </snapshotRepository>
+        <site>
+            <id>kp-website</id>
+            <url>file://home/docu/kp-office/${project.version}</url>
+        </site>
+    </distributionManagement>
+
+    <issueManagement>
+        <system>jira</system>
+        <url>https://devzone.kaiserpfalz-edv.de/issues/BROWSE/OCP</url>
+    </issueManagement>
+
+    <scm>
+        <url>http://github.com/klenkes74/openshift-accounts.git</url>
+        <connection>scm:git:git://github.com/klenkes74/openshift-accounts.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/klenkes74/openshift-accounts.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+
+    <inceptionYear>2017</inceptionYear>
+
+
+    <mailingLists>
+        <mailingList>
+            <name>ocp-announce</name>
+            <post>ocp-announce@kaiserpfalz-edv.de</post>
+            <subscribe>ocp-announce+subscribe@kaiserpfalz-edv.de</subscribe>
+            <unsubscribe>ocp-announce+unsubscribe@kaiserpfalz-edv.de</unsubscribe>
+        </mailingList>
+        <mailingList>
+            <name>ocp-user</name>
+            <post>ocp-user@kaiserpfalz-edv.de</post>
+            <subscribe>ocp-user+subscribe@kaiserpfalz-edv.de</subscribe>
+            <unsubscribe>ocp-user+unsubscribe@kaiserpfalz-edv.de</unsubscribe>
+        </mailingList>
+        <mailingList>
+            <name>ocp-developer</name>
+            <post>ocp-developer@kaiserpfalz-edv.de</post>
+            <subscribe>ocp-developer+subscribe@kaiserpfalz-edv.de</subscribe>
+            <unsubscribe>ocp-developer+unsubscribe@kaiserpfalz-edv.de</unsubscribe>
+        </mailingList>
+    </mailingLists>
+
+
+    <developers>
+        <developer>
+            <id>klenkes74</id>
+            <name>Roland Thomas Lichti</name>
+            <email>rlichti@kaiserpfalz-edv.de</email>
+            <organization>Kaiserpfalz EDV-Service</organization>
+            <roles>
+                <role>Developer</role>
+                <role>Administration</role>
+            </roles>
+            <timezone>Europe/Berlin</timezone>
+        </developer>
+    </developers>
+
+
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
@@ -53,6 +121,13 @@
             <artifactId>javaee-api</artifactId>
             <version>7.0</version>
             <scope>provided</scope>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.25</version>
         </dependency>
 
         <dependency>
