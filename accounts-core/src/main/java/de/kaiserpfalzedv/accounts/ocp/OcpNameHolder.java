@@ -15,16 +15,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package de.kaiserpfalzedv.accounts;
-
-import de.kaiserpfalzedv.accounts.ocp.groups.Group;
-
-import java.util.Map;
+package de.kaiserpfalzedv.accounts.ocp;
 
 /**
  * @author rlichti {@literal <rlichti@kaiserpfalz-edv.de>}
- * @since 2017-09-12
+ * @since 2017-09-14
  */
-public interface GroupExecutor {
-    void execute(Map<String, Group> ocpGroupNames, Map<String, Group> ldapGroups);
+public interface OcpNameHolder {
+    String getOcpName();
 }

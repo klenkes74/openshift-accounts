@@ -15,16 +15,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package de.kaiserpfalzedv.accounts;
+package de.kaiserpfalzedv.accounts.ocp.groups;
 
-import de.kaiserpfalzedv.accounts.ocp.groups.Group;
-
-import java.util.Map;
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import java.util.Optional;
 
 /**
- * @author rlichti {@literal <rlichti@kaiserpfalz-edv.de>}
- * @since 2017-09-12
+ * @author klenkes {@literal <rlichti@kaiserpfalz-edv.de>}
+ * @version 1.0.0
+ * @since 2017-09-10
  */
-public interface GroupExecutor {
-    void execute(Map<String, Group> ocpGroupNames, Map<String, Group> ldapGroups);
+public interface GroupConverter {
+    Optional<Group> convert(final Attributes ldapGroup) throws NamingException;
 }
