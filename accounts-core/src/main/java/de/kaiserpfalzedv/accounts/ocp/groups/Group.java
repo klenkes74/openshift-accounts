@@ -30,43 +30,30 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.openshift.restclient.model.IResource;
+
 /**
  * @author klenkes {@literal <rlichti@kaiserpfalz-edv.de>}
  * @version 1.0.0
  * @since 2017-09-10
  */
 public class Group implements OcpNameHolder, Serializable {
-    public static final String LOCAL_PART = "/oapi/v1/groups/";
+    private IResource group;
 
-    private String ldapServer;
-    private String dn;
-    private String ocpName;
-
-    private OffsetDateTime syncDate;
-    private String uuid;
-    private String resourceVersion;
-
-    private final HashSet<User> users = new HashSet<>();
-
-    private final HashSet<Group> groups = new HashSet<>();
-
-
-    public Group(final String ldapServer, final String dn, final String ocpName, final OffsetDateTime syncDate) {
-        this.ldapServer = ldapServer;
-        this.dn = dn;
-        this.ocpName = ocpName;
-        this.syncDate = syncDate;
+    public Group(@NotNull final IResource group) {
+        this.group = group;
     }
 
     void setUuid(@NotNull final String uuid) {
-        this.uuid = uuid;
+        group.setAnnotation("uid", uuid);
     }
 
     void setResourceVersion(@NotNull final String resourceVersion) {
-        this.resourceVersion = resourceVersion;
+        group.setAnnotation("resourceVersion", resourceVersion);
     }
 
     boolean addUser(final User user) {
+
         return users.add(user);
     }
 
@@ -100,24 +87,16 @@ public class Group implements OcpNameHolder, Serializable {
     }
 
 
-    public String getLdapServer() {
-        return ldapServer;
-    }
-
-    public String getDn() {
-        return dn;
-    }
-
     public String getOcpName() {
         return ocpName;
     }
 
     public String getUuid() {
-        return uuid;
+        return group.getAnnotation("uid");
     }
 
     public String getResourceVersion() {
-        return resourceVersion;
+        return group.getAnnotation("resourceVersion");
     }
 
 

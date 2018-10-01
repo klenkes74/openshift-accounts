@@ -1,29 +1,32 @@
 /*
- *    Copyright 2017 Kaiserpfalz EDV-Service, Roland T. Lichti
+ * Copyright (C) 2018 Kaiserpfalz EDV-Service, Roland T. Lichti
  *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *        http://www.apache.org/licenses/LICENSE-2.0
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package de.kaiserpfalzedv.accounts.ocp.providers;
 
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Optional;
 
 import javax.enterprise.inject.Produces;
 import javax.inject.Named;
-import java.io.FileInputStream;
-import java.io.IOException;
+
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author klenkes {@literal <rlichti@kaiserpfalz-edv.de>}
@@ -41,11 +44,17 @@ public class OcpSecretProvider {
 
 
     @Produces
-    public OcpToken getOcpToken() throws IOException {
-        readTokenFromFileIfNotPresentedOnCommandLine();
+    public Optional<OcpToken> getOcpToken() {
+        try {
+            readTokenFromFileIfNotPresentedOnCommandLine();
+        } catch (IOException e) {
+            LOG.error(e.getClass().getSimpleName() + " caught: " + e.getMessage(), e);
+
+            return Optional.empty();
+        }
 
         logToken(token);
-        return new OcpToken(token);
+        return Optional.of(new OcpToken(token));
     }
 
     private void logToken(String token) {
